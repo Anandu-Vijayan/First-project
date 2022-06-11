@@ -171,9 +171,9 @@ router.get('/cart',verifylogin,async (req, res) => {
   let loged = req.session.user
   let products=await productHelpers.getCartProducts(req.session.user._id)
   console.log(req.session.user);
-  console.log();
+  let totalValue=await productHelpers.getTotalAmount(req.session.user._id)
   console.log(products); 
-  res.render('cart',{ user: true, loged ,products})
+  res.render('cart',{ user: true, loged,user:req.session.user,products,totalValue})
   
 })
  router.get('/add-to-cart/:id',(req,res)=>{
@@ -187,27 +187,28 @@ router.get('/cart',verifylogin,async (req, res) => {
     res.redirect('/product')
    
    })
-  }else{
-    res.redirect('/') 
+  }else{ 
+    res.redirect('/')  
   } 
     
  })
  router.post('/change-product-quantity',(req,res,next)=>{
   
   console.log("helooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
-   productHelpers.changeProductQuantity(req.body).then((response)=>{
+   productHelpers.changeProductQuantity(req.body).then(async(response)=>{
+    response.total=await productHelpers.getTotalAmount(req.body.user)
     res.json(response) 
  console.log(req.body);
    }) 
  })
-router.get('/about', (req, res) => {
+router.get('/about', (req, res) => { 
   let loged = req.session.user
   res.render('about', { user: true, loged })
 })
 router.get('/product-single/:id', (req, res) => {
   let loged = req.session.user
   productHelpers.getSingleProduct(req.params.id).then((product)=>{
-    res.render('product-single', { user: true, loged,product })
+    res.render('product-single', { user: true, loged,product})
 
   })
  
